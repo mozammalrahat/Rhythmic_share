@@ -18,14 +18,24 @@ import ClearIcon from "@material-ui/icons/Clear";
 import LibraryMusicIcon from "@material-ui/icons/LibraryMusic";
 import Error from '../Shared/Error'
 import {GET_TRACKS_QUERY} from '../../pages/App'
+
+
 const CreateTrack = ({ classes }) => {
   const [open, setOpen] = useState(false);
   const [title,setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [file, setFile] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [fileError, setFileError] = useState("")
   const handleAudioChange = event =>{
     const selectedFile = event.target.files[0]
+    const fileSizeLimit = 10000000
+    if(selectedFile && selectedFile.size>fileSizeLimit){
+        setFileError(`${selectedFile.name}: File size too large`)
+    }else{
+      setFile(selectedFile)
+      setFileError("")
+    }
     setFile(selectedFile)
   }
   const handleAudioUpload = async()=>{
@@ -43,6 +53,14 @@ const CreateTrack = ({ classes }) => {
       setSubmitting(false)
     }
   }
+
+  const handleUpdateCache = (cache,{data:{createTrack}})=>{
+    const data = cache.readQuery({query: GET_TRACKS_QUERY})
+    const tracks = data.tracks.concat(createTrack.track)
+    cache.writeQuery({query:GET_TRACKS_QUERY,data:{tracks}})
+  }
+
+
   const handleSubmit = async(event,createTrack)=>{
     event.preventDefault()
     setSubmitting(true)
@@ -59,8 +77,12 @@ const CreateTrack = ({ classes }) => {
       console.log(data)
       setSubmitting(false)
       setOpen(false)
+      setTitle("")
+      setDescription("")
+      setFile("")
     }}
-    refetchQueries={()=>[{query:GET_TRACKS_QUERY}]}
+    update={handleUpdateCache}
+    // refetchQueries={()=>[{query:GET_TRACKS_QUERY}]}
     >
       {
         (createTrack,{loading,error})=>{
@@ -71,13 +93,14 @@ const CreateTrack = ({ classes }) => {
               <DialogTitle>Create Track</DialogTitle>
               <DialogContent>
                 <DialogContentText>
-                  Add a Title, Description & Audio File
+                  Add a Title, Description & Audio File (Under 10MB)
                 </DialogContentText>
                 <FormControl fullWidth>
                   <TextField 
                   label="Title"
                   placeholder="Add Title"
                   onChange = {event =>setTitle(event.target.value)}
+                  value={title}
                   className={classes.TextField}
                   />
                 </FormControl>
@@ -88,10 +111,11 @@ const CreateTrack = ({ classes }) => {
                   label="Description"
                   placeholder="Add Description"
                   onChange = {event=>setDescription(event.target.value)}
+                  value={description}
                   className={classes.TextField}
                   />
                 </FormControl>
-                <FormControl>
+                <FormControl error={Boolean(fileError)}>
                   <input
                   id="audio"
                   required
@@ -107,6 +131,7 @@ const CreateTrack = ({ classes }) => {
                       <LibraryMusicIcon className={classes.icon}/>
                     </Button>
                     {file && file.name}
+                    <FormHelperText>{fileError}</FormHelperText>
                   </label>
                 </FormControl>
               </DialogContent>
@@ -141,6 +166,13 @@ const CREATE_TRACK_MUTATION = gql `
             title
             description
             url
+            likes{
+              id
+            }
+            postedBy{
+              id
+              username
+            }
           }
         }
       }
