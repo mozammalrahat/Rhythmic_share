@@ -73,7 +73,6 @@ const Login = ({ classes, setNewUser }) => {
                 fullWidth>
                   New user?Register here
                 </Button>
-                  {/* error handling */}
 
                 {error && <Error error={error}/>}
 

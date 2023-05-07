@@ -15,59 +15,58 @@ import AudioPlayer from "../Shared/AudioPlayer";
 import LikeTrack from "./LikeTrack";
 import DeleteTrack from "./DeleteTrack";
 import UpdateTrack from "./UpdateTrack";
-const TrackList = ({ classes,tracks }) => (
+const TrackList = ({ classes, tracks }) => (
   <List>
-    {tracks.map(track=>(
+    {tracks.map((track) => (
       <ExpansionPanel key={track.id}>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-              <ListItem className={classes.root}>
-                <LikeTrack trackId={track.id} likeCount={track.likes.length}/>
-                <ListItemText
-                primaryTypographyProps={{
-                  variant:'subheading',
-                  color:'primary'
-                }}
-                primary={track.title}
-                secondary={
-                  <Link className={classes.link} to={`/profile/${track.postedBy.id}`}>
-                    {track.postedBy.username}
-                  </Link>
-                  
-                }
-                />
-                <AudioPlayer url={track.url}/>
-              </ListItem>
-
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails className={classes.details}>
-                <Typography variant='body1'>
-                  {track.description}
-                </Typography>
-          </ExpansionPanelDetails>
-          <ExpansionPanelActions>
-            <UpdateTrack track={track}/>
-            <DeleteTrack track={track}/>
-          </ExpansionPanelActions>
+        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+          <ListItem className={classes.root}>
+            <LikeTrack trackId={track.id} likeCount={track.likes.length} />
+            <ListItemText
+              primaryTypographyProps={{
+                variant: "subheading",
+                color: "primary",
+              }}
+              primary={track.title}
+              secondary={
+                <Link
+                  className={classes.link}
+                  to={`/profile/${track.postedBy.id}`}
+                >
+                  {track.postedBy.username}
+                </Link>
+              }
+            />
+            <AudioPlayer url={track.url} />
+          </ListItem>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails className={classes.details}>
+          <Typography variant="body1">{track.description}</Typography>
+        </ExpansionPanelDetails>
+        <ExpansionPanelActions>
+          <UpdateTrack track={track} />
+          <DeleteTrack track={track} />
+        </ExpansionPanelActions>
       </ExpansionPanel>
     ))}
   </List>
-)
+);
 
 const styles = {
   root: {
     display: "flex",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
   },
   details: {
-    alignItems: "center"
+    alignItems: "center",
   },
   link: {
     color: "#424242",
     textDecoration: "none",
     "&:hover": {
-      color: "black"
-    }
-  }
+      color: "black",
+    },
+  },
 };
 
 export default withStyles(styles)(TrackList);
