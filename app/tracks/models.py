@@ -26,3 +26,12 @@ class Comment(models.Model):
                               related_name='comments', on_delete=models.CASCADE)
     body = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MusicReview(models.Model):
+    user = models.ForeignKey(get_user_model(), null=True,
+                             on_delete=models.CASCADE)
+    track = models.ForeignKey('tracks.Track',
+                              related_name='music_reviews', on_delete=models.CASCADE)
+    body = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)

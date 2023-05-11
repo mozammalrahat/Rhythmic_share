@@ -1,5 +1,5 @@
 import graphene
-from .models import Track, Like, Comment
+from .models import Track, Like, Comment, MusicReview
 from graphene_django import DjangoObjectType
 from users.schema import UserType
 from django.db.models import Q
@@ -21,11 +21,17 @@ class CommentType(DjangoObjectType):
         model = Comment
 
 
+class MusicReviewType(DjangoObjectType):
+    class Meta:
+        model = MusicReview
+
+
 class Query(graphene.ObjectType):
 
     tracks = graphene.List(TrackType, search=graphene.String())
     likes = graphene.List(LikeType)
     Comments = graphene.List(CommentType)
+    MusicReviews = graphene.List(MusicReviewType)
 
     def resolve_tracks(self, info, search=None):
         if search:
@@ -44,6 +50,9 @@ class Query(graphene.ObjectType):
 
     def resolve_comments(self, info):
         return Comment.objects.all()
+
+    def resolve_music_reviews(self, info):
+        return MusicReview.objects.all()
 
 
 class CreateTrack(graphene.Mutation):
@@ -197,6 +206,72 @@ class deleteComment(graphene.Mutation):
         return deleteComment(user=user, track=track, body=body)
 
 
+class CreateMusicReview(graphene.Mutation):
+    user = graphene.Field(UserType)
+    track = graphene.Field(TrackType)
+    body = graphene.String()
+
+    class Arguments:
+        track_id = graphene.Int(required=True)
+        body = graphene.String(required=True)
+
+    def mutate(self, info, track_id, body):
+        user = info.context.user
+        track = Track.objects.get(id=track_id)
+        if user.is_anonymous:
+            raise Exception("Login to comment on tracks.")
+        MusicReview.objects.create(
+            user=user,
+            track=track,
+            body=body
+        )
+        return CreateMusicReview(user=user, track=track, body=body)
+
+
+class updateMusicReview(graphene.Mutation):
+    user = graphene.Field(UserType)
+    track = graphene.Field(TrackType)
+    body = graphene.String()
+
+    class Arguments:
+        track_id = graphene.Int(required=True)
+        body = graphene.String(required=True)
+
+    def mutate(self, info, track_id, body):
+        user = info.context.user
+        track = Track.objects.get(id=track_id)
+        if user.is_anonymous:
+            raise Exception("Login to comment on tracks.")
+        MusicReview.objects.update(
+            user=user,
+            track=track,
+            body=body
+        )
+        return updateMusicReview(user=user, track=track, body=body)
+
+
+class deleteMusicReview(graphene.Mutation):
+    user = graphene.Field(UserType)
+    track = graphene.Field(TrackType)
+    body = graphene.String()
+
+    class Arguments:
+        track_id = graphene.Int(required=True)
+        body = graphene.String(required=True)
+
+    def mutate(self, info, track_id, body):
+        user = info.context.user
+        track = Track.objects.get(id=track_id)
+        if user.is_anonymous:
+            raise Exception("Login to comment on tracks.")
+        MusicReview.objects.delete(
+            user=user,
+            track=track,
+            body=body
+        )
+        return deleteMusicReview(user=user, track=track, body=body)
+
+
 class Mutation(graphene.ObjectType):
     create_track = CreateTrack.Field()
     update_track = UpdateTrack.Field()
@@ -205,3 +280,6 @@ class Mutation(graphene.ObjectType):
     create_comment = createComment.Field()
     update_comment = updateComment.Field()
     delete_comment = deleteComment.Field()
+    create_music_review = CreateMusicReview.Field()
+    update_music_review = updateMusicReview.Field()
+    delete_music_review = deleteMusicReview.Field()
