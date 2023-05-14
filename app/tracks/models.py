@@ -17,6 +17,7 @@ class Like(models.Model):
                              on_delete=models.CASCADE)
     track = models.ForeignKey('tracks.Track',
                               related_name='likes', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Comment(models.Model):

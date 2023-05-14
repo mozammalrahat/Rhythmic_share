@@ -119,6 +119,7 @@ class DeleteTrack(graphene.Mutation):
 class CreateLike(graphene.Mutation):
     user = graphene.Field(UserType)
     track = graphene.Field(TrackType)
+    is_liked = graphene.Boolean()
 
     class Arguments:
         track_id = graphene.Int(required=True)
@@ -129,15 +130,22 @@ class CreateLike(graphene.Mutation):
             raise Exception("Login to like tracks.")
 
         track = Track.objects.get(id=track_id)
+        like, created = Like.objects.get_or_create(user=user, track=track)
 
         if not track:
             raise Exception("Cannot find track with given track id")
-        Like.objects.create(
-            user=user,
-            track=track
-        )
 
-        return CreateLike(user=user, track=track)
+        if not created:
+            like.delete()
+            is_liked = False
+        else:
+            is_liked = True
+        # Like.objects.create(
+        #     user=user,
+        #     track=track
+        # )
+
+        return CreateLike(user=user, track=track, is_liked=is_liked)
 
 
 class createComment(graphene.Mutation):
