@@ -6,6 +6,9 @@ As a music enthusiast, I developed a music-sharing platform named RhythmicShare,
 * GraphQL
 * React
 * Apollo GraphQL Client
+* Material UI
+* Graphene
+* JWT
 
 ## Screenshots
 <img width="1080" alt="Screenshot 2021-09-16 at 10 32 01 AM" src="https://res.cloudinary.com/mozammalhossain/image/upload/v1684314943/RhythmicShare/login_p1ulkx.png">
